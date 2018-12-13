@@ -1,8 +1,8 @@
 Requirements 
 
-python2.7
-pytorch=0.1.12  
-
+# Following packages and versions needed 
+python=2.7
+pytorch=0.1.12
 jsonpickle
 "fabric<2" 
 pyhocon
@@ -12,7 +12,8 @@ line_profiler
 tqdm
 gitpython
 
+
+
 # Run the following
 export TEXTMORPH_DATA=~/Documents/General/NYU/Fall18/inf_and_rep/project/neural-editor-data
-
 PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt 
