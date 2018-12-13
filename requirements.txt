@@ -1,0 +1,18 @@
+Requirements 
+
+python2.7
+pytorch=0.1.12  
+
+jsonpickle
+"fabric<2" 
+pyhocon
+tensorboard_logger
+faulthandler
+line_profiler
+tqdm
+gitpython
+
+# Run the following
+export TEXTMORPH_DATA=~/Documents/General/NYU/Fall18/inf_and_rep/project/neural-editor-data
+
+PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt 
