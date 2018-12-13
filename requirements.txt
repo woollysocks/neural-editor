@@ -1,8 +1,8 @@
-Requirements 
+# Requirements 
 
 # Following packages and versions needed 
 python=2.7
-pytorch=0.1.12
+pytorch==0.1.12
 jsonpickle
 "fabric<2" 
 pyhocon
