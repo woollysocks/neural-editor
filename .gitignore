@@ -1,2 +1,4 @@
 *.pyc
 .idea
+neural-editor-data/
+venv_editor/
