@@ -1,5 +1,6 @@
 ## Following packages and versions needed ##
-python=2.7
+# Need python=2.7
+
 pytorch==0.1.12
 pyhocon
 tensorboard_logger
@@ -23,3 +24,6 @@ fabric==1.12.0
 ## Run the following ##
 # export TEXTMORPH_DATA=~/Documents/General/NYU/Fall18/inf_and_rep/project/neural-editor-data
 # sPYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt 
+
+
+/home/nn1119/.local/bin
