@@ -477,8 +477,7 @@ class SampleDecoder(LeftRightDecoder):
             states (list[DecoderState])
         """
         # update RNN state
-        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner,
-                                                   encoder_output, rnn_state, states)
+        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner,encoder_output, rnn_state, states)
         token_probs, vocab = predictions
         vocab_size = len(vocab)
 
@@ -687,8 +686,7 @@ class BeamDecoder(LeftRightDecoder):
             c (Variable): (batch_size, hidden_dim)
             states (list[DecoderState])
         """
-        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner,
-                                                   encoder_output, rnn_state, states)
+        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner,encoder_output, rnn_state, states)
         token_probs, vocab = predictions
 
         sequence_probs = np.expand_dims(np.array([s.sequence_prob for s in states]), 1)  # (batch_size, 1)

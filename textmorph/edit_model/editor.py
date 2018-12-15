@@ -9,6 +9,7 @@ from gtd.utils import UnicodeMixin, chunks
 from gtd.ml.torch.decoder import TrainDecoder, BeamDecoder, TrainDecoderInput
 from textmorph.edit_model.encoder import Encoder
 from textmorph.edit_model.attention_decoder import AttentionContextCombiner
+from meta_optim import OptimN2N
 
 class Editor(Module):
     """Editor.
@@ -35,6 +36,29 @@ class Editor(Module):
         context_combiner = AttentionContextCombiner()
         self.train_decoder = TrainDecoder(decoder_cell, token_embedder, context_combiner)
         self.test_decoder_beam = BeamDecoder(decoder_cell, token_embedder, context_combiner)
+        self.meta_optimizer = OptimN2N(??) #TODO fill in
+
+        update_params = list(self.train_decoder.parameters())
+        meta_optimizer = OptimN2N(variational_loss, 
+                            self.encoder, 
+                            self.train_decoder, 
+                            update_params)
+        # REDEFINE above, remove variational_loss
+        # meta_optimizer has defaul settings
+        # Todo: add hypereparamters to tune!!!
+
+    def variational_loss(self, input, sents, encoder, decoder, z = None):
+        mean, logvar = input
+        FIX THIS
+        z_samples = encoder._reparameterize(mean, logvar, z) ??
+        #preds = decoder(sents, z_samples) ??
+        var_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
+
+        #nll = sum([criterion(preds[:, l], sents[:, l+1]) for l in range(preds.size(1))])
+        nll = var_loss
+        #kl = utils.kl_loss_diag(mean, logvar)
+        #return nll + args.beta*kl
+        return nll
 
     @classmethod
     def _batch_editor_examples(cls, examples):
@@ -85,8 +109,68 @@ class Editor(Module):
             loss (Variable): scalar
         """
         encoder_output = self.encoder(editor_input.encoder_input, draw_samples, draw_p)
-        total_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
-        return total_loss
+        #total_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input) <-- original.
+
+        mean, logvar = encoder_output.agenda
+        var_params = torch.cat([mean, logvar], 1) 
+        mean_svi = Variable(encoder_output.agenda[0].data, requires_grad = True)
+        logvar_svi = Variable(encoder_output.agenda[1].data, requires_grad = True)
+
+        losses = []
+        for i in range(20):
+            # stuff
+            z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, z)
+            encoder_output.agenda = self.z_samples
+            nll = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
+            losses.append(nll)
+
+        var_params_svi = meta_optimizer.forward([mean_svi, logvar_svi], losses, editor_input.train_decoder_input)
+        # encoder_output.source_embeds or  editor_input.train_decoder_input?
+        # verbose False above
+
+        self.mean_svi_final, self.logvar_svi_final = var_params_svi
+        self.z_samples = self.encoder._reparameterize(self.mean_svi_final, self.logvar_svi_final)
+        encoder_output.agenda = self.z_samples
+        var_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
+        var_loss.backward()
+        # the above is nll_svi.
+
+        losses = []
+        for i in range(20):
+            # stuff
+        
+        var_param_grads = meta_optimizer.backward([mean_svi_final.grad, logvar_svi_final.grad])
+        # verbose set to False above
+        var_param_grads = torch.cat(var_param_grads, 1)
+        var_params.backward(var_param_grads)
+
+        # add shit
+        """
+        PLAN!!
+
+        TODO: define meta_optimizer?
+
+        1. need "mean" and "logvar" from self.encoder
+            a. mean and logvar are linear transformations of encoder output
+            b. mean is "lambda" in SA-VAE paper. logvar is "v".
+            c. lambda in neural-ediotor is tuple of outputs: (source_embeds, insert_noisy_exact, delete_noisy_exact, agenda). How do we define lambda?
+                i. source_embeds is sents in SA-VAE (I think)
+                ii. agenda is part of lambda/mean.
+                iii. X insert_noisy_exact?
+                iv. X delete_noisy_exact?
+                v. DONE "lambda = agenda" [simple decoder cell only looks at agenda. not noisy stuff. if true, let "lambda = agenda".]
+        2. do all the transformations and stuff and pass through meta_optimizer.forward to get var_loss
+            a. Do versions with and without reparametrization
+        3. pass inputs through meta.backwards to get var.params
+        4. do .backward() with both losses
+        5. do single optimizer.step()
+
+        decisions to make:
+            1. do we reparameterize lambda/agenda/edit_embed?
+        """
+
+        #return total_loss
+        return var_loss, var_params, var_param_grads
 
     def loss(self, examples, draw_samples=False, draw_p=False):
         """Compute loss Variable.
@@ -99,10 +183,12 @@ class Editor(Module):
             loss (Variable): of shape 1
         """
         editor_input = self.preprocess(examples)
-        total_loss = self(editor_input, draw_samples, draw_p)
+        #total_loss = self(editor_input, draw_samples, draw_p)
+        var_loss, var_params, var_param_grads = self(editor_input, draw_samples, draw_p)
+        reg_loss = 0
         if draw_samples:
-            total_loss += self.encoder.regularizer(editor_input.encoder_input)
-        return total_loss
+            reg_loss += self.encoder.regularizer(editor_input.encoder_input)
+        return var_loss, var_params, var_param_grads, reg_loss
 
     def per_instance_losses(self, examples, draw_samples=False, batch_size=128):
         """Compute per-instance losses."""
@@ -159,9 +245,13 @@ class Editor(Module):
                                                 delete_exact_words, edit_embed)
         encoder_output = self.encoder(encoder_input)
 
-        beams, decoder_traces = self.test_decoder_beam.decode(examples, encoder_output, weighted_value_estimators=[]
-                                                                     , beam_size=beam_size, prefix_hints = [[]]
-                                                                     , sibling_penalty=0, max_seq_length=max_seq_length)
+        beams, decoder_traces = self.test_decoder_beam.decode(examples, 
+            encoder_output, 
+            weighted_value_estimators=[], 
+            beam_size=beam_size, 
+            prefix_hints = [[]], 
+            sibling_penalty=0, 
+            max_seq_length=max_seq_length)
 
         return beams, [EditTrace(ex, d_trace.beam_traces[-1]) for ex, d_trace in izip(examples, decoder_traces)]
 

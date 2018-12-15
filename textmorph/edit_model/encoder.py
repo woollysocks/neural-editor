@@ -67,6 +67,8 @@ class Encoder(Module):
         self.source_encoder = MultiLayerSourceEncoder(word_dim, hidden_dim, num_layers, rnn_cell_factory)
         self.edit_encoder = EditEncoder(word_dim, edit_dim, lamb_reg, norm_eps, norm_max)
         self.agenda_maker = AgendaMaker(self.source_encoder.hidden_dim, self.edit_dim, self.agenda_dim)
+        self.agenda_lin1 = nn.linear(self.agenda_dim, self.agenda_dim)
+        self.agenda_lin1 = nn.linear(self.agenda_dim, self.agenda_dim)
 
     def preprocess(self, source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, edit_embed):
         """Preprocess.
@@ -139,14 +141,17 @@ class Encoder(Module):
                 edit_embed = GPUVariable(torch.zeros(batch_size, self.edit_dim))
         else:
             if encoder_input.edit_embed is None:
-                edit_embed = self.edit_encoder(insert_embeds, insert_embeds_exact,
-                                                   delete_embeds, delete_embeds_exact,draw_samples, draw_p)
+                edit_embed = self.edit_encoder(insert_embeds, insert_embeds_exact, delete_embeds, delete_embeds_exact, draw_samples, draw_p)
             else:
                 # bypass the edit_encoder
                 edit_embed = encoder_input.edit_embed
 
         agenda = self.agenda_maker(source_embeds_final, edit_embed)
-        return EncoderOutput(source_embeds, insert_noisy_exact, delete_noisy_exact, agenda)
+        # agenda run thorugh 2 different linear transformations to get lambda and v
+        agenda_l = self.agenda_lin1(agenda)
+        agenda_v = self.agenda_lin1(agenda)
+        
+        return EncoderOutput(source_embeds, insert_noisy_exact, delete_noisy_exact, (agenda_l, agenda_v))
 
     def warp_edit_vec(self, edit_embed, encoder_input):
         """ Wrap a given edit vector and generate encoder outputs """
@@ -165,7 +170,12 @@ class Encoder(Module):
         source_embeds_final = torch.cat(source_encoder_output.final_states, 1)  # (batch_size, hidden_dim)
 
         agenda = self.agenda_maker(source_embeds_final, edit_embed)
-        return EncoderOutput(source_embeds, insert_embeds_exact, delete_embeds_exact, agenda)
+
+        # agenda run thorugh 2 different linear transformations to get lambda and v
+        agenda_l = self.agenda_lin1(agenda)
+        agenda_v = self.agenda_lin1(agenda)
+
+        return EncoderOutput(source_embeds, insert_embeds_exact, delete_embeds_exact, (agenda_l, agenda_v))
 
     def generate_edits(self, encoder_input, norm):
         """ Draw uniform random vectors with given norm, and use as edit vector """
@@ -189,3 +199,10 @@ class Encoder(Module):
         edit_embed = GPUVariable(rand_vec / torch.norm(rand_vec, 2, dim=1).expand_as(rand_vec) * norm)
         agenda = self.agenda_maker(source_embeds_final, edit_embed)
         return EncoderOutput(source_embeds, insert_embeds_exact, delete_embeds_exact, agenda)
+
+    def _reparameterize(self, mean, logvar, z = None):
+        std = logvar.mul(0.5).exp()    
+        if z is None:
+          #z = Variable(torch.cuda.FloatTensor(std.size()).normal_(0, 1))
+          z = Variable(torch.FloatTensor(std.size()).normal_(0, 1))
+        return z.mul(std) + mean

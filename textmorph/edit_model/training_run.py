@@ -30,6 +30,8 @@ from gtd.ml.torch.token_embedder import TokenEmbedder
 from gtd.ml.torch.utils import similar_size_batches, try_gpu
 from gtd.ml.vocab import SimpleEmbeddings, WordVocab
 
+from meta_optim import OptimN2N
+
 class EditTrainingRuns(TrainingRuns):
     def __init__(self, check_commit=True):
         data_dir = data.workspace.edit_runs
@@ -409,8 +411,12 @@ class EditTrainingRun(TorchTrainingRun):
                         noised_batch = noiser(batch)
                     else:
                         noised_batch = batch
-                    loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
-                    loss.backward()
+                    #loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
+                    var_loss, var_params, var_param_grads, reg_loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
+                    #var_loss.backward(retain_graph = True)
+                    #var_params.backward(var_param_grads, retain_graph=True)
+                    reg_loss.backward()
+                    #loss.backward()
 
                     # clip gradients
                     if train_state.train_steps < 50:
@@ -483,8 +489,8 @@ class EditTrainingRun(TorchTrainingRun):
 
             # compute metrics
             loss, avg_bleu, edit_traces = cls._compute_metrics(editor, examples, num_eval, noiser,
-                                                               edit_dropout=config.editor.edit_dropout,
-                                                               draw_samples=config.editor.enable_vae)
+                edit_dropout=config.editor.edit_dropout,
+                draw_samples=config.editor.enable_vae)
 
             # log
             log_value('loss_{}{}'.format(big_str, name), loss, train_steps)

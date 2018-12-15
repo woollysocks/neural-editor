@@ -189,3 +189,4 @@ class MultiLayerSourceEncoder(SourceEncoder):
                 backward_states = add_residuals(backward_states, new_backward_states)
 
         return BidirectionalEncoderOutput(forward_states, backward_states)
+        

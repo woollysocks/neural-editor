@@ -72,16 +72,15 @@ class LanguageModel(Module):
         prefix_hints = [[]] * num_samples  # none
         encoder_output = self._encoder_output(num_samples)
         if decode_method == 'sample':
-            output_beams, decoder_traces = self.sample_decoder.decode(examples, encoder_output,
-                                                                      beam_size=1, prefix_hints=prefix_hints)
+            output_beams, decoder_traces = self.sample_decoder.decode(examples, encoder_output,beam_size=1, prefix_hints=prefix_hints)
         elif decode_method == 'argmax':
             value_estimators = []
             beam_size = 1
             sibling_penalty = 0.
             output_beams, decoder_traces = self.beam_decoder.decode(examples, encoder_output,
-                                                                    weighted_value_estimators=value_estimators,
-                                                                    beam_size=beam_size, prefix_hints=prefix_hints,
-                                                                    sibling_penalty=sibling_penalty)
+                weighted_value_estimators=value_estimators,
+                beam_size=beam_size, prefix_hints=prefix_hints,
+                sibling_penalty=sibling_penalty)
         else:
             raise ValueError(decode_method)
 
