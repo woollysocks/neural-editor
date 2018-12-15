@@ -161,10 +161,10 @@ class Editor(Module):
         editor_input = self.preprocess(examples)
         #total_loss = self(editor_input, draw_samples, draw_p)
         var_loss, var_params, var_param_grads = self(editor_input, draw_samples, draw_p)
-        reg_loss = 0
-        if draw_samples:
-            reg_loss += self.encoder.regularizer(editor_input.encoder_input)
-        return var_loss, var_params, var_param_grads, reg_loss
+        #reg_loss = 0
+        #if draw_samples:
+        #    reg_loss += self.encoder.regularizer(editor_input.encoder_input)
+        return var_loss, var_params, var_param_grads #, reg_loss
 
     def per_instance_losses(self, examples, draw_samples=False, batch_size=128):
         """Compute per-instance losses."""
@@ -179,13 +179,14 @@ class Editor(Module):
     def test_batch(self, examples):
         """simple batching test"""
         if len(examples) > 1:
-            var_loss0, var_params0, var_param_grads0, reg_loss0 = self.loss([examples[0]])
-            lindivid = torch.abs(var_loss0) + torch.abs(reg_loss0) + torch.abs(torch.mean(var_params0))
-            var_loss1, var_params1, var_param_grads1, reg_loss1 = self.loss([examples[1]])
-            lindivid += torch.abs(var_loss1) + torch.abs(reg_loss1) + torch.abs(torch.mean(var_params1))
+            var_loss0, var_params0, var_param_grads0 = self.loss([examples[0]])
+            lindivid = torch.abs(var_loss0) + torch.abs(torch.mean(var_params0))
+            var_loss1, var_params1, var_param_grads1 = self.loss([examples[1]])
+            lindivid += torch.abs(var_loss1) + torch.abs(torch.mean(var_params1))
+
             #lindivid = self.loss([examples[0]]) + self.loss([examples[1]])
-            var_loss2, var_params2, var_param_grads2, reg_loss2 = self.loss(examples[0:2])
-            ltogether = (torch.abs(var_loss2) + torch.abs(reg_loss2) + torch.abs(torch.mean(var_params2))) * 2.0
+            var_loss2, var_params2, var_param_grads2 = self.loss(examples[0:2])
+            ltogether = (torch.abs(var_loss2) + torch.abs(torch.mean(var_params2))) * 2.0
             #ltogether = self.loss(examples[0:2]) * 2.0
             if abs(lindivid.data.cpu().numpy() - ltogether.data.cpu().numpy()) > 1e-5:
                 print examples[0:2]

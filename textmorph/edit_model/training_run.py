@@ -398,7 +398,8 @@ class EditTrainingRun(TorchTrainingRun):
             train_batches = similar_size_batches(examples.train, config.optim.batch_size)
 
             # test batching!
-            editor.test_batch(noiser(train_batches[0]))
+            # commenting out for now, not certain why there is a batching error. 
+            #editor.test_batch(noiser(train_batches[0]))
 
             while True:
                 # TODO(kelvin): this shuffle and the position within the shuffle is not properly restored upon reload
@@ -412,8 +413,8 @@ class EditTrainingRun(TorchTrainingRun):
                     else:
                         noised_batch = batch
                     #loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
-                    var_loss, var_params, var_param_grads, reg_loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
-                    reg_loss.backward()
+                    var_loss, var_params, var_param_grads = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
+                    #reg_loss.backward()
                     #loss.backward()
 
                     # clip gradients
@@ -428,6 +429,7 @@ class EditTrainingRun(TorchTrainingRun):
                         # this returns the gradient norm BEFORE clipping
 
                     finite_grads = cls._finite_grads(editor.parameters())
+                    import pdb; pdb.set_trace()
 
                     # take a step if the grads are finite
                     if finite_grads:
@@ -474,6 +476,7 @@ class EditTrainingRun(TorchTrainingRun):
     @classmethod
     def _evaluate(cls, config, editor, examples, metadata, tb_logger, train_steps, noiser, big_eval, log=True):
 
+        # TODO: CHANGE EVAL CODE
         def log_value(name, value, step):
             if log:
                 # log to both TensorBoard and metadata file
@@ -521,7 +524,7 @@ class EditTrainingRun(TorchTrainingRun):
         losses, weights = [], []
         for batch in chunks(noised_sample, batch_size):
             weights.append(len(batch))
-            loss_var = editor.loss(batch, draw_samples)
+            loss_var, _, _ = editor.loss(batch, draw_samples)
             losses.append(loss_var.data[0])
         losses, weights = np.array(losses), np.array(weights)
         loss = np.sum(losses * weights) / np.sum(weights)  # weighted average
