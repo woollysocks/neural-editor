@@ -39,26 +39,11 @@ class Editor(Module):
         self.meta_optimizer = OptimN2N(??) #TODO fill in
 
         update_params = list(self.train_decoder.parameters())
-        meta_optimizer = OptimN2N(variational_loss, 
-                            self.encoder, 
+        meta_optimizer = OptimN2N(self.encoder, 
                             self.train_decoder, 
                             update_params)
-        # REDEFINE above, remove variational_loss
         # meta_optimizer has defaul settings
         # Todo: add hypereparamters to tune!!!
-
-    def variational_loss(self, input, sents, encoder, decoder, z = None):
-        mean, logvar = input
-        FIX THIS
-        z_samples = encoder._reparameterize(mean, logvar, z) ??
-        #preds = decoder(sents, z_samples) ??
-        var_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
-
-        #nll = sum([criterion(preds[:, l], sents[:, l+1]) for l in range(preds.size(1))])
-        nll = var_loss
-        #kl = utils.kl_loss_diag(mean, logvar)
-        #return nll + args.beta*kl
-        return nll
 
     @classmethod
     def _batch_editor_examples(cls, examples):
@@ -108,7 +93,7 @@ class Editor(Module):
         Returns:
             loss (Variable): scalar
         """
-        encoder_output = self.encoder(editor_input.encoder_input, draw_samples, draw_p)
+        self.encoder_output = self.encoder(editor_input.encoder_input, draw_samples, draw_p)
         #total_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input) <-- original.
 
         mean, logvar = encoder_output.agenda
@@ -116,15 +101,21 @@ class Editor(Module):
         mean_svi = Variable(encoder_output.agenda[0].data, requires_grad = True)
         logvar_svi = Variable(encoder_output.agenda[1].data, requires_grad = True)
 
+        """
+        seeds = np.random.randint(3435, size=self.iters)
         losses = []
+        all_z = []
         for i in range(20):
-            # stuff
+            all_z.append(Variable(torch.cuda.FloatTensor(input[0].size()).normal_(0, 1)))
+            torch.manual_seed(int(seeds[k]))
+
             z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, z)
             encoder_output.agenda = self.z_samples
             nll = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
             losses.append(nll)
+        """
 
-        var_params_svi = meta_optimizer.forward([mean_svi, logvar_svi], losses, editor_input.train_decoder_input)
+        var_params_svi = meta_optimizer.forward([mean_svi, logvar_svi], self.encoder_output, editor_input.train_decoder_input)
         # encoder_output.source_embeds or  editor_input.train_decoder_input?
         # verbose False above
 
@@ -134,10 +125,6 @@ class Editor(Module):
         var_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
         var_loss.backward()
         # the above is nll_svi.
-
-        losses = []
-        for i in range(20):
-            # stuff
         
         var_param_grads = meta_optimizer.backward([mean_svi_final.grad, logvar_svi_final.grad])
         # verbose set to False above

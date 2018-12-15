@@ -17,8 +17,7 @@ import numpy as np
 
 
 class OptimN2N:
-  def __init__(self,  
-               loss_fn, 
+  def __init__(self, 
                encoder,
                decoder,
                model_update_params,
@@ -31,7 +30,7 @@ class OptimN2N:
        
     self.iters = iters
     self.lr = lr
-    self.loss_fn = loss_fn
+    #self.loss_fn = loss_fn
     self.eps = eps
     self.max_grad_norm = max_grad_norm
     self.encoder = encoder
@@ -74,8 +73,9 @@ class OptimN2N:
           for p in parameters:
             p.mul_(clip_coef)
             
-  def forward_mom(self, input, losses, y, verbose=False):
+  def forward_mom(self, input, encoder_output, y, verbose=False):
     self.y = y
+    self.encoder_output = encoder_output
     self.input_grads = [torch.zeros([self.iters] + list(x.size())).type_as(x.data) for x in input]
     self.mom_params = [torch.zeros(x.size()).type_as(x) for x in self.input_grads]    
     self.input_cache = [torch.zeros(x.size()).type_as(x) for x in self.input_grads]
@@ -86,7 +86,12 @@ class OptimN2N:
     for k in range(self.iters):
       self.all_z.append(Variable(torch.cuda.FloatTensor(input[0].size()).normal_(0, 1)))
       torch.manual_seed(int(self.seeds[k]))
-      loss = losses[k]
+
+      mean_svi, logvar_svi = input
+      z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, self.all_z[k])
+      self.encoder_output.agenda = z_samples
+      loss = self.decoder.loss(self.encoder_output, self.y)
+
       #loss = self.loss_fn(input, self.y, self.model, self.all_z[k])
         
       if self.acc_param_grads:
@@ -141,7 +146,16 @@ class OptimN2N:
       else:
         all_input_params = input_k_rv
       torch.manual_seed(int(self.seeds[k]))
-      loss = self.loss_fn(input_k_rv, self.y, self.model, self.all_z[k])        
+
+
+      # ADDING SHIT
+      mean, logvar = input_k_rv
+      z_samples = self.encoder._reparameterize(mean, logvar, self.all_z[k])
+      self.encoder_output.agenda = z_samples
+      loss = self.decoder.loss(self.encoder_output, self.y)
+
+      #loss = self.loss_fn(input_k_rv, self.y, self.model, self.all_z[k])
+
       all_grads_rv_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
       
       if self.max_grad_norm > 0:
