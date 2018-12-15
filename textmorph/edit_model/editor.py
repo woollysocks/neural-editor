@@ -12,6 +12,7 @@ from gtd.ml.torch.decoder import TrainDecoder, BeamDecoder, TrainDecoderInput
 from textmorph.edit_model.encoder import Encoder
 from textmorph.edit_model.attention_decoder import AttentionContextCombiner
 from meta_optim import OptimN2N
+from encoder import EncoderOutput
 
 class Editor(Module):
     """Editor.
@@ -42,7 +43,7 @@ class Editor(Module):
         self.meta_optimizer = OptimN2N(self.encoder, 
                             self.train_decoder, 
                             update_params)
-        # meta_optimizer has defaul settings
+        # meta_optimizer has default settings
         # Todo: add hypereparamters to tune!!!
 
     @classmethod
@@ -107,42 +108,44 @@ class Editor(Module):
 
         self.mean_svi_final, self.logvar_svi_final = var_params_svi
         self.z_samples = self.encoder._reparameterize(self.mean_svi_final, self.logvar_svi_final)
-        self.encoder_output.agenda = self.z_samples
+        #self.encoder_output.agenda = self.z_samples
+        self.encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, self.z_samples)
         var_loss = self.train_decoder.loss(self.encoder_output, editor_input.train_decoder_input)
-        var_loss.backward()
+        var_loss.backward(retain_variables=True)
         # the above is nll_svi.
         
-        var_param_grads = self.meta_optimizer.backward([mean_svi_final.grad, logvar_svi_final.grad])
+        var_param_grads = self.meta_optimizer.backward([self.mean_svi_final.grad, self.logvar_svi_final.grad])
         # verbose set to False above
         var_param_grads = torch.cat(var_param_grads, 1)
-        var_params.backward(var_param_grads)
+        var_params.backward(var_param_grads, retain_variables=True)
 
         # add shit
         """
-        PLAN!!
+            PLAN!!
 
-        TODO: define meta_optimizer?
+            TODO: define meta_optimizer?
 
-        1. need "mean" and "logvar" from self.encoder
-            a. mean and logvar are linear transformations of encoder output
-            b. mean is "lambda" in SA-VAE paper. logvar is "v".
-            c. lambda in neural-ediotor is tuple of outputs: (source_embeds, insert_noisy_exact, delete_noisy_exact, agenda). How do we define lambda?
-                i. source_embeds is sents in SA-VAE (I think)
-                ii. agenda is part of lambda/mean.
-                iii. X insert_noisy_exact?
-                iv. X delete_noisy_exact?
-                v. DONE "lambda = agenda" [simple decoder cell only looks at agenda. not noisy stuff. if true, let "lambda = agenda".]
-        2. do all the transformations and stuff and pass through meta_optimizer.forward to get var_loss
-            a. Do versions with and without reparametrization
-        3. pass inputs through meta.backwards to get var.params
-        4. do .backward() with both losses
-        5. do single optimizer.step()
+            1. need "mean" and "logvar" from self.encoder
+                a. mean and logvar are linear transformations of encoder output
+                b. mean is "lambda" in SA-VAE paper. logvar is "v".
+                c. lambda in neural-ediotor is tuple of outputs: (source_embeds, insert_noisy_exact, delete_noisy_exact, agenda). How do we define lambda?
+                    i. source_embeds is sents in SA-VAE (I think)
+                    ii. agenda is part of lambda/mean.
+                    iii. X insert_noisy_exact?
+                    iv. X delete_noisy_exact?
+                    v. DONE "lambda = agenda" [simple decoder cell only looks at agenda. not noisy stuff. if true, let "lambda = agenda".]
+            2. do all the transformations and stuff and pass through meta_optimizer.forward to get var_loss
+                a. Do versions with and without reparametrization
+            3. pass inputs through meta.backwards to get var.params
+            4. do .backward() with both losses
+            5. do single optimizer.step()
 
-        decisions to make:
-            1. do we reparameterize lambda/agenda/edit_embed?
+            decisions to make:
+                1. do we reparameterize lambda/agenda/edit_embed?
         """
 
         #return total_loss
+        print("boopedy")
         return var_loss, var_params, var_param_grads
 
     def loss(self, examples, draw_samples=False, draw_p=False):
@@ -176,8 +179,14 @@ class Editor(Module):
     def test_batch(self, examples):
         """simple batching test"""
         if len(examples) > 1:
-            lindivid = self.loss([examples[0]]) + self.loss([examples[1]])
-            ltogether = self.loss(examples[0:2])*2.0
+            var_loss0, var_params0, var_param_grads0, reg_loss0 = self.loss([examples[0]])
+            lindivid = torch.abs(var_loss0) + torch.abs(reg_loss0) + torch.abs(torch.mean(var_params0))
+            var_loss1, var_params1, var_param_grads1, reg_loss1 = self.loss([examples[1]])
+            lindivid += torch.abs(var_loss1) + torch.abs(reg_loss1) + torch.abs(torch.mean(var_params1))
+            #lindivid = self.loss([examples[0]]) + self.loss([examples[1]])
+            var_loss2, var_params2, var_param_grads2, reg_loss2 = self.loss(examples[0:2])
+            ltogether = (torch.abs(var_loss2) + torch.abs(reg_loss2) + torch.abs(torch.mean(var_params2))) * 2.0
+            #ltogether = self.loss(examples[0:2]) * 2.0
             if abs(lindivid.data.cpu().numpy() - ltogether.data.cpu().numpy()) > 1e-5:
                 print examples[0:2]
                 print 'individually:'

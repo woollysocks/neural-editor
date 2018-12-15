@@ -111,9 +111,11 @@ def similar_size_batches(examples, batch_size, size=lambda x: len(x.target_words
     optimal_cost = sum(size(ex) for ex in examples)
 
     print 'Optimized batches: reduced cost from {naive} (naive) to {improved} ({reduction}% reduction).\n' \
-          'Optimal (batch_size=1) would be {optimal}.'.format(naive=naive_cost, improved=improved_cost,
-                                                              reduction=float(naive_cost - improved_cost) / naive_cost,
-                                                              optimal=optimal_cost)
+          'Optimal (batch_size=1) would be {optimal}.'.format(
+                naive=naive_cost, 
+                improved=improved_cost, 
+                reduction=float(naive_cost - improved_cost) / naive_cost, 
+                optimal=optimal_cost)
 
     return batches
 

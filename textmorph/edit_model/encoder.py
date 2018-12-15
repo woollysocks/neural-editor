@@ -69,7 +69,7 @@ class Encoder(Module):
         self.edit_encoder = EditEncoder(word_dim, edit_dim, lamb_reg, norm_eps, norm_max)
         self.agenda_maker = AgendaMaker(self.source_encoder.hidden_dim, self.edit_dim, self.agenda_dim)
         self.agenda_lin1 = nn.Linear(self.agenda_dim, self.agenda_dim)
-        self.agenda_lin1 = nn.Linear(self.agenda_dim, self.agenda_dim)
+        self.agenda_lin2 = nn.Linear(self.agenda_dim, self.agenda_dim)
 
     def preprocess(self, source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, edit_embed):
         """Preprocess.
@@ -150,7 +150,7 @@ class Encoder(Module):
         agenda = self.agenda_maker(source_embeds_final, edit_embed)
         # agenda run thorugh 2 different linear transformations to get lambda and v
         agenda_l = self.agenda_lin1(agenda)
-        agenda_v = self.agenda_lin1(agenda)
+        agenda_v = self.agenda_lin2(agenda)
 
         return EncoderOutput(source_embeds, insert_noisy_exact, delete_noisy_exact, (agenda_l, agenda_v))
 

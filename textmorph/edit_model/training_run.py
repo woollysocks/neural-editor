@@ -413,8 +413,6 @@ class EditTrainingRun(TorchTrainingRun):
                         noised_batch = batch
                     #loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
                     var_loss, var_params, var_param_grads, reg_loss = editor.loss(noised_batch, draw_samples=config.editor.enable_vae)
-                    #var_loss.backward(retain_graph = True)
-                    #var_params.backward(var_param_grads, retain_graph=True)
                     reg_loss.backward()
                     #loss.backward()
 
