@@ -4,6 +4,8 @@ from itertools import izip
 import numpy as np
 from nltk import word_tokenize
 from torch.nn import Module, LSTMCell
+import torch
+from gtd.ml.torch.utils import GPUVariable
 
 from gtd.utils import UnicodeMixin, chunks
 from gtd.ml.torch.decoder import TrainDecoder, BeamDecoder, TrainDecoderInput
@@ -36,10 +38,8 @@ class Editor(Module):
         context_combiner = AttentionContextCombiner()
         self.train_decoder = TrainDecoder(decoder_cell, token_embedder, context_combiner)
         self.test_decoder_beam = BeamDecoder(decoder_cell, token_embedder, context_combiner)
-        self.meta_optimizer = OptimN2N(??) #TODO fill in
-
         update_params = list(self.train_decoder.parameters())
-        meta_optimizer = OptimN2N(self.encoder, 
+        self.meta_optimizer = OptimN2N(self.encoder, 
                             self.train_decoder, 
                             update_params)
         # meta_optimizer has defaul settings
@@ -96,37 +96,23 @@ class Editor(Module):
         self.encoder_output = self.encoder(editor_input.encoder_input, draw_samples, draw_p)
         #total_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input) <-- original.
 
-        mean, logvar = encoder_output.agenda
+        mean, logvar = self.encoder_output.agenda
         var_params = torch.cat([mean, logvar], 1) 
-        mean_svi = Variable(encoder_output.agenda[0].data, requires_grad = True)
-        logvar_svi = Variable(encoder_output.agenda[1].data, requires_grad = True)
+        mean_svi = GPUVariable(self.encoder_output.agenda[0].data, requires_grad=True)
+        logvar_svi = GPUVariable(self.encoder_output.agenda[1].data, requires_grad=True)
 
-        """
-        seeds = np.random.randint(3435, size=self.iters)
-        losses = []
-        all_z = []
-        for i in range(20):
-            all_z.append(Variable(torch.cuda.FloatTensor(input[0].size()).normal_(0, 1)))
-            torch.manual_seed(int(seeds[k]))
-
-            z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, z)
-            encoder_output.agenda = self.z_samples
-            nll = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
-            losses.append(nll)
-        """
-
-        var_params_svi = meta_optimizer.forward([mean_svi, logvar_svi], self.encoder_output, editor_input.train_decoder_input)
+        var_params_svi = self.meta_optimizer.forward([mean_svi, logvar_svi], self.encoder_output, editor_input.train_decoder_input)
         # encoder_output.source_embeds or  editor_input.train_decoder_input?
         # verbose False above
 
         self.mean_svi_final, self.logvar_svi_final = var_params_svi
         self.z_samples = self.encoder._reparameterize(self.mean_svi_final, self.logvar_svi_final)
-        encoder_output.agenda = self.z_samples
-        var_loss = self.train_decoder.loss(encoder_output, editor_input.train_decoder_input)
+        self.encoder_output.agenda = self.z_samples
+        var_loss = self.train_decoder.loss(self.encoder_output, editor_input.train_decoder_input)
         var_loss.backward()
         # the above is nll_svi.
         
-        var_param_grads = meta_optimizer.backward([mean_svi_final.grad, logvar_svi_final.grad])
+        var_param_grads = self.meta_optimizer.backward([mean_svi_final.grad, logvar_svi_final.grad])
         # verbose set to False above
         var_param_grads = torch.cat(var_param_grads, 1)
         var_params.backward(var_param_grads)

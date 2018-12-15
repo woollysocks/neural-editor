@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 import torch
+from torch import nn
 from torch.nn import Module
 
 from gtd.ml.torch.seq_batch import SequenceBatch
@@ -67,8 +68,8 @@ class Encoder(Module):
         self.source_encoder = MultiLayerSourceEncoder(word_dim, hidden_dim, num_layers, rnn_cell_factory)
         self.edit_encoder = EditEncoder(word_dim, edit_dim, lamb_reg, norm_eps, norm_max)
         self.agenda_maker = AgendaMaker(self.source_encoder.hidden_dim, self.edit_dim, self.agenda_dim)
-        self.agenda_lin1 = nn.linear(self.agenda_dim, self.agenda_dim)
-        self.agenda_lin1 = nn.linear(self.agenda_dim, self.agenda_dim)
+        self.agenda_lin1 = nn.Linear(self.agenda_dim, self.agenda_dim)
+        self.agenda_lin1 = nn.Linear(self.agenda_dim, self.agenda_dim)
 
     def preprocess(self, source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, edit_embed):
         """Preprocess.
@@ -150,7 +151,7 @@ class Encoder(Module):
         # agenda run thorugh 2 different linear transformations to get lambda and v
         agenda_l = self.agenda_lin1(agenda)
         agenda_v = self.agenda_lin1(agenda)
-        
+
         return EncoderOutput(source_embeds, insert_noisy_exact, delete_noisy_exact, (agenda_l, agenda_v))
 
     def warp_edit_vec(self, edit_embed, encoder_input):
@@ -204,5 +205,5 @@ class Encoder(Module):
         std = logvar.mul(0.5).exp()    
         if z is None:
           #z = Variable(torch.cuda.FloatTensor(std.size()).normal_(0, 1))
-          z = Variable(torch.FloatTensor(std.size()).normal_(0, 1))
+          z = GPUVariable(torch.FloatTensor(std.size()).normal_(0, 1))
         return z.mul(std) + mean

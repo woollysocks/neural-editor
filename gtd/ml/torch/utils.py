@@ -146,8 +146,8 @@ def try_gpu(x):
         return x
 
 
-def GPUVariable(data):
-    return try_gpu(Variable(data, requires_grad=False))
+def GPUVariable(data, requires_grad=False):
+    return try_gpu(Variable(data, requires_grad=requires_grad))
 
 
 class RandomState(object):

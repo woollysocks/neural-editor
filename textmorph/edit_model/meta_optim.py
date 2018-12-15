@@ -9,11 +9,12 @@ import random
 import shutil
 
 import torch
-from torch import cuda
-from torch.autograd import Variable
+from gtd.ml.torch.utils import GPUVariable
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+
+from encoder import EncoderOutput
 
 
 class OptimN2N:
@@ -84,21 +85,24 @@ class OptimN2N:
       for p in self.param_grads:
         p.zero_()
     for k in range(self.iters):
-      self.all_z.append(Variable(torch.cuda.FloatTensor(input[0].size()).normal_(0, 1)))
+      self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1)))
       torch.manual_seed(int(self.seeds[k]))
 
       mean_svi, logvar_svi = input
       z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, self.all_z[k])
-      self.encoder_output.agenda = z_samples
+      self.encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, z_samples)
+      #self.encoder_output.agenda = z_samples
       loss = self.decoder.loss(self.encoder_output, self.y)
-
       #loss = self.loss_fn(input, self.y, self.model, self.all_z[k])
         
       if self.acc_param_grads:
         all_input_params = input + self.params
       else:
         all_input_params = input        
-      all_grads_k = torch.autograd.grad(loss, all_input_params, retain_graph = True)
+
+      # CURRENT BUG HERE! torch.autograd.grad does not exist for versojn 0.1.12. of course not. 
+      # torch.autograd.backward(variables=all_input_params, grad_variables=None, retain_variables=True) ??
+      all_grads_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
       input_grad_k = all_grads_k[:len(input)]
       param_grads_k = all_grads_k[len(input):]
       
@@ -119,7 +123,7 @@ class OptimN2N:
         else:
           self.mom_params[i][k] = self.mom_params[i][k-1]*self.momentum -input_grad_k[i].data
       lr_k_list = [lr for lr in self.lr]
-      input = [Variable(x.data + lr_k * p[k], requires_grad=True) for x, p, lr_k in
+      input = [GPUVariable(x.data + lr_k * p[k], requires_grad=True) for x, p, lr_k in
                zip(input, self.mom_params, lr_k_list)]      
       if verbose:
         print('mom', k, loss.data[0])
@@ -139,7 +143,7 @@ class OptimN2N:
       for i in range(len(p_kp1_grad)):
         v = p_kp1_grad[i]
         x_k = self.input_cache[i][k]
-        x_k_rv = Variable((x_k + r*v).type_as(x_k), requires_grad = True)
+        x_k_rv = GPUVariable((x_k + r*v).type_as(x_k), requires_grad = True)
         input_k_rv.append(x_k_rv)
       if self.acc_param_grads:
         all_input_params = input_k_rv + self.params
@@ -151,7 +155,8 @@ class OptimN2N:
       # ADDING SHIT
       mean, logvar = input_k_rv
       z_samples = self.encoder._reparameterize(mean, logvar, self.all_z[k])
-      self.encoder_output.agenda = z_samples
+      self.encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, z_samples)
+      #self.encoder_output.agenda = z_samples
       loss = self.decoder.loss(self.encoder_output, self.y)
 
       #loss = self.loss_fn(input_k_rv, self.y, self.model, self.all_z[k])
@@ -170,7 +175,7 @@ class OptimN2N:
           H_wx_v = (p_grad_rv_k.data - self.param_grads[i][k]) / r
           H_wx_v_list.append(H_wx_v)
           if self.params[i].grad is None:
-            self.params[i].grad = Variable(torch.zeros(self.params[i].size()).type_as(
+            self.params[i].grad = GPUVariable(torch.zeros(self.params[i].size()).type_as(
               self.params[i].data))
         if self.max_grad_norm > 0:
           self.clip_grad_norm(H_wx_v_list, self.max_grad_norm)                                
