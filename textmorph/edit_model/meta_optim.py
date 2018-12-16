@@ -16,6 +16,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+from gtd.ml.torch.utils import try_gpu
+
 from encoder import EncoderOutput
 
 
@@ -176,7 +178,7 @@ class OptimN2N:
             if self.acc_param_grads:
                 H_wx_v_list = []
                 for i, p_grad_rv_k in enumerate(param_grads_rv_k):
-                    H_wx_v = (p_grad_rv_k.data - self.param_grads[i][k]) / r
+                    H_wx_v = (p_grad_rv_k.data - try_gpu(self.param_grads[i][k])) / r
                     H_wx_v_list.append(H_wx_v)
                     if self.params[i].grad is None:
                         # try removing GPU below
