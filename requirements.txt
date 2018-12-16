@@ -6,7 +6,7 @@ pyhocon
 tensorboard_logger
 tqdm
 gitpython
-nltk
+nltk==3.2.4
 line_profiler==1.0
 matplotlib==1.4.3
 numpy==1.11.0

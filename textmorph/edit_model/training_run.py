@@ -432,7 +432,8 @@ class EditTrainingRun(TorchTrainingRun):
 
                     # Always do gradient clipping
                     # To-do: make this tunable, not hard-coded
-                    torch.nn.utils.clip_grad_norm(editor.parameters(), 5.0) 
+                    grad_norm = clip_grad_norm(editor.parameters(), 5.)
+                    #storch.nn.utils.clip_grad_norm(editor.parameters(), 5.0) 
 
                     finite_grads = cls._finite_grads(editor.parameters())
                     #cur = [param for param in editor.parameters()]
@@ -465,9 +466,9 @@ class EditTrainingRun(TorchTrainingRun):
                             pdb.set_trace()
 
                     # run periodic evaluation and saving
-                    #if train_state.train_steps % config.eval.eval_steps == 0:
-                    cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=False)
-                    tb_logger.log_value('grad_norm', grad_norm, train_state.train_steps)
+                    if train_state.train_steps % config.eval.eval_steps == 0:
+                        cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=False)
+                        tb_logger.log_value('grad_norm', grad_norm, train_state.train_steps)
 
                     if train_state.train_steps % config.eval.big_eval_steps == 0:
                         cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=True)
