@@ -12,6 +12,7 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('exp_id', nargs='+')
 arg_parser.add_argument('-c', '--check_commit', default='strict')
 arg_parser.add_argument('-p', '--profile', action='store_true')
+arg_parser.add_argument('seed', type=int, default=0)
 args = arg_parser.parse_args()
 
 # create experiment
@@ -26,7 +27,9 @@ elif len(exp_id) == 1 and exp_id[0].isdigit():
     exp = experiments[int(exp_id[0])]
 else:
     # new experiment according to configs
-    config = Config.from_file(exp_id[0])
+    soup = args.seed
+    config = Config.from_file(exp_id[0], soup)
+    config.seed = args.seed
     for filename in exp_id[1:]:
         config = Config.merge(config, Config.from_file(filename))
     exp = experiments.new(config)  # new experiment from config

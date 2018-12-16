@@ -1,7 +1,7 @@
 include "../optim/default.txt"
 include "../eval/short.txt"
 
-seed = 0
+seed = 1
 
 editor {
     decoder_cell = AttentionDecoderCell
