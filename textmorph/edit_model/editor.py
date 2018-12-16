@@ -101,10 +101,6 @@ class Editor(Module):
 
         mean, logvar = self.encoder_output.agenda
         var_params = torch.cat([mean, logvar], 1) 
-        #mean_svi = GPUVariable(self.encoder_output.agenda[0].data, requires_grad=True)
-        #logvar_svi = GPUVariable(self.encoder_output.agenda[1].data, requires_grad=True)
-        # TRYING
-
         mean_svi = Variable(self.encoder_output.agenda[0].data, requires_grad=True)
         logvar_svi = Variable(self.encoder_output.agenda[1].data, requires_grad=True)
 
