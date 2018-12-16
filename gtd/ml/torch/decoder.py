@@ -13,6 +13,7 @@ from gtd.ml.torch.utils import GPUVariable, try_gpu, NamedTupleLike
 from gtd.ml.utils import temperature_smooth
 from gtd.ml.vocab import WordVocab
 from gtd.utils import UnicodeMixin, chunks
+from encoder import EncoderOutput
 
 
 class TrainDecoderInput(object):
@@ -547,6 +548,8 @@ class BeamDecoder(LeftRightDecoder):
         # duplicate everything to beam_size
         duplicate = BeamDuplicator(beam_size)
         rnn_state = duplicate(rnn_state_orig)
+        # BUG HERE
+        encoder_output = EncoderOutput(encoder_output.source_embeds, encoder_output.insert_embeds, encoder_output.delete_embeds, encoder_output.agenda[0])
         encoder_output = duplicate(encoder_output)
 
         states = []
@@ -577,10 +580,10 @@ class BeamDecoder(LeftRightDecoder):
 
     @classmethod
     def _select_extensions_fast(cls, extension_probs, beam_size):
-        extension_probs_sorted, original_indices = cls._truncate_extension_probs(extension_probs,
-                                                                                 beam_size)  # (batch_size, beam_size)
-        batch_indices, sorted_token_indices = cls._select_extensions(extension_probs_sorted,
-                                                                     beam_size)  # 1D array of batch_size * beam_size
+        extension_probs_sorted, original_indices = cls._truncate_extension_probs(extension_probs, 
+                                        beam_size)  # (batch_size, beam_size)
+        batch_indices, sorted_token_indices = cls._select_extensions(extension_probs_sorted, 
+                                beam_size)  # 1D array of batch_size * beam_size
         token_indices = original_indices[batch_indices, sorted_token_indices]  # 1D array of batch_size * beam_size
         return batch_indices, token_indices
 
@@ -761,6 +764,10 @@ class BeamDuplicator(object):
         return torch.index_select(v, 0, dup_indices)
 
     def _namedtuple(self, obj):
+        assert isinstance(obj, tuple)
+        return type(obj)(*[self(item) for item in obj])
+
+    def _tuple(self, obj):
         assert isinstance(obj, tuple)
         return type(obj)(*[self(item) for item in obj])
 

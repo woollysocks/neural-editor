@@ -465,9 +465,9 @@ class EditTrainingRun(TorchTrainingRun):
                             pdb.set_trace()
 
                     # run periodic evaluation and saving
-                    if train_state.train_steps % config.eval.eval_steps == 0:
-                        cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=False)
-                        tb_logger.log_value('grad_norm', grad_norm, train_state.train_steps)
+                    #if train_state.train_steps % config.eval.eval_steps == 0:
+                    cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=False)
+                    tb_logger.log_value('grad_norm', grad_norm, train_state.train_steps)
 
                     if train_state.train_steps % config.eval.big_eval_steps == 0:
                         cls._evaluate(config, editor, examples, metadata, tb_logger, train_state.train_steps, noiser, big_eval=True)

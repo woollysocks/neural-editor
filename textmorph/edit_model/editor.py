@@ -227,7 +227,6 @@ class Editor(Module):
         encoder_input = self.encoder.preprocess(source_words, insert_words, insert_exact_words, delete_words,
                                                 delete_exact_words, edit_embed)
         encoder_output = self.encoder(encoder_input)
-
         beams, decoder_traces = self.test_decoder_beam.decode(examples, 
             encoder_output, 
             weighted_value_estimators=[], 
