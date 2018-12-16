@@ -14,6 +14,8 @@ from textmorph.edit_model.attention_decoder import AttentionContextCombiner
 from meta_optim import OptimN2N
 from encoder import EncoderOutput
 
+from torch.autograd import Variable
+
 class Editor(Module):
     """Editor.
 
@@ -99,8 +101,12 @@ class Editor(Module):
 
         mean, logvar = self.encoder_output.agenda
         var_params = torch.cat([mean, logvar], 1) 
-        mean_svi = GPUVariable(self.encoder_output.agenda[0].data, requires_grad=True)
-        logvar_svi = GPUVariable(self.encoder_output.agenda[1].data, requires_grad=True)
+        #mean_svi = GPUVariable(self.encoder_output.agenda[0].data, requires_grad=True)
+        #logvar_svi = GPUVariable(self.encoder_output.agenda[1].data, requires_grad=True)
+        # TRYING
+
+        mean_svi = Variable(self.encoder_output.agenda[0].data, requires_grad=True)
+        logvar_svi = Variable(self.encoder_output.agenda[1].data, requires_grad=True)
 
         var_params_svi = self.meta_optimizer.forward([mean_svi, logvar_svi], self.encoder_output, editor_input.train_decoder_input)
         # encoder_output.source_embeds or  editor_input.train_decoder_input?

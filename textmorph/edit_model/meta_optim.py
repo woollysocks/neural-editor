@@ -77,13 +77,13 @@ class OptimN2N:
             for p in self.param_grads:
                 p.zero_()
         for k in range(self.iters):
-            self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1), requires_grad=True))
+            self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1))) # , requires_grad=True
             torch.manual_seed(int(self.seeds[k]))
             mean_svi, logvar_svi = input
             z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, self.all_z[k])
             self.encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, z_samples)
             loss = self.decoder.loss(self.encoder_output, self.y)
-            #loss = self.loss_fn(input, self.y, self.model, self.all_z[k])
+            #loss = self.loss_fn(input, self.y, self.model, self.all_z[k]) 
 
             if self.acc_param_grads:
                 all_input_params = input + self.params
@@ -93,6 +93,8 @@ class OptimN2N:
             #all_grads_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
             loss.backward(retain_variables=True)
             all_grads_k = [i.grad for i in all_input_params]
+
+            import pdb; pdb.set_trace
 
             input_grad_k = all_grads_k[:len(input)]
             param_grads_k = all_grads_k[len(input):]
@@ -169,7 +171,7 @@ class OptimN2N:
                     H_wx_v = (p_grad_rv_k.data - self.param_grads[i][k]) / r
                     H_wx_v_list.append(H_wx_v)
                     if self.params[i].grad is None:
-                        self.params[i].grad = GPUVariable(torch.zeros(self.params[i].size()).type_as(self.params[i].data), requires_grad=True)
+                        self.params[i].grad = GPUVariable(torch.zeros(self.params[i].size()).type_as(self.params[i].data))
                 if self.max_grad_norm > 0:
                     self.clip_grad_norm(H_wx_v_list, self.max_grad_norm)                              
                 for i in range(len(self.params)):
