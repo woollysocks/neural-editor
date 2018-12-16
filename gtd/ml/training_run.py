@@ -88,6 +88,8 @@ class TrainingRun(object):
         Args:
             src_dir (str): path to the Git repository
         """
+
+        """
         if self.metadata['dirty_repo']:
             raise EnvironmentError('Working directory was dirty when commit was recorded.')
 
@@ -99,6 +101,8 @@ class TrainingRun(object):
         run_commit = self.metadata['commit']
         if current_commit != run_commit:
             raise EnvironmentError("Commits don't match.\nCurrent: {}\nRecorded: {}".format(current_commit, run_commit))
+        """
+        pass
 
 
 class TrainingRuns(Mapping):

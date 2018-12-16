@@ -935,9 +935,10 @@ class Config(object):
             f.write(self.to_str())
 
     @classmethod
-    def from_file(cls, path, soup):
+    def from_file(cls, path, soup=None):
         config_tree = ConfigFactory.parse_file(path)
-        config_tree['seed'] = soup
+        if soup:
+            config_tree['seed'] = soup
         return cls(config_tree)
 
     @classmethod
