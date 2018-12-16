@@ -77,7 +77,7 @@ class OptimN2N:
             for p in self.param_grads:
                 p.zero_()
         for k in range(self.iters):
-            self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1)))
+            self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1), requires_grad=True))
             torch.manual_seed(int(self.seeds[k]))
             mean_svi, logvar_svi = input
             z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, self.all_z[k])
@@ -138,7 +138,7 @@ class OptimN2N:
             for i in range(len(p_kp1_grad)):
                 v = p_kp1_grad[i]
                 x_k = self.input_cache[i][k]
-                x_k_rv = GPUVariable((x_k + r*v).type_as(x_k), requires_grad = True)
+                x_k_rv = GPUVariable((x_k + r*v).type_as(x_k), requires_grad=True)
                 input_k_rv.append(x_k_rv)
             if self.acc_param_grads:
                 all_input_params = input_k_rv + self.params
@@ -169,7 +169,7 @@ class OptimN2N:
                     H_wx_v = (p_grad_rv_k.data - self.param_grads[i][k]) / r
                     H_wx_v_list.append(H_wx_v)
                     if self.params[i].grad is None:
-                        self.params[i].grad = GPUVariable(torch.zeros(self.params[i].size()).type_as(self.params[i].data))
+                        self.params[i].grad = GPUVariable(torch.zeros(self.params[i].size()).type_as(self.params[i].data), requires_grad=True)
                 if self.max_grad_norm > 0:
                     self.clip_grad_norm(H_wx_v_list, self.max_grad_norm)                              
                 for i in range(len(self.params)):
