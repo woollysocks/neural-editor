@@ -205,5 +205,5 @@ class Encoder(Module):
         std = logvar.mul(0.5).exp()    
         if z is None:
           #z = Variable(torch.cuda.FloatTensor(std.size()).normal_(0, 1))
-          z = GPUVariable(torch.FloatTensor(std.size()).normal_(0, 1))
+          z = GPUVariable(torch.FloatTensor(std.size()).normal_(0, 1), requires_grad=True)
         return z.mul(std) + mean

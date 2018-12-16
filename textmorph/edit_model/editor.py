@@ -118,7 +118,6 @@ class Editor(Module):
         # verbose set to False above
         var_param_grads = torch.cat(var_param_grads, 1)
         var_params.backward(var_param_grads, retain_variables=True)
-
         # add shit
         """
             PLAN!!
@@ -145,7 +144,6 @@ class Editor(Module):
         """
 
         #return total_loss
-        print("boopedy")
         return var_loss, var_params, var_param_grads
 
     def loss(self, examples, draw_samples=False, draw_p=False):

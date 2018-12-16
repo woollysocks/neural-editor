@@ -417,6 +417,7 @@ class EditTrainingRun(TorchTrainingRun):
                     #reg_loss.backward()
                     #loss.backward()
 
+                    """
                     # clip gradients
                     if train_state.train_steps < 50:
                         # don't clip, just observe the gradient norm
@@ -427,9 +428,14 @@ class EditTrainingRun(TorchTrainingRun):
                         # clip according to the max allowed grad norm
                         grad_norm = clip_grad_norm(editor.parameters(), train_state.max_grad_norm)
                         # this returns the gradient norm BEFORE clipping
+                    """
+
+                    # Always do gradient clipping
+                    # To-do: make this tunable, not hard-coded
+                    torch.nn.utils.clip_grad_norm(editor.parameters(), 5.0) 
 
                     finite_grads = cls._finite_grads(editor.parameters())
-                    import pdb; pdb.set_trace()
+                    #cur = [param for param in editor.parameters()]
 
                     # take a step if the grads are finite
                     if finite_grads:

@@ -18,8 +18,9 @@ from encoder import EncoderOutput
 
 
 class OptimN2N:
-    def __init__(self, encoder, decoder, model_update_params, lr=[1,1],iters=20, acc_param_grads=True, max_grad_norm = 0, eps = 0.00001, momentum=0.5):
+    def __init__(self, encoder, decoder, model_update_params, lr=[1,1],iters=20, acc_param_grads=True, max_grad_norm = 5, eps = 0.00001, momentum=0.5):
 
+        #eps = 0.00001
         self.iters = iters
         self.lr = lr
         #self.loss_fn = loss_fn
@@ -99,6 +100,7 @@ class OptimN2N:
             if self.max_grad_norm > 0:        
                 self.clip_grad_norm([input_grad_k[0].data], self.max_grad_norm)
                 self.clip_grad_norm([input_grad_k[1].data], self.max_grad_norm)
+            #import pdb; pdb.set_trace()
 
             if self.acc_param_grads:
                 for i, p in enumerate(param_grads_k):
