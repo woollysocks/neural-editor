@@ -81,7 +81,7 @@ class OptimN2N:
             for p in self.param_grads:
                 p.zero_()
         for k in range(self.iters):
-            self.all_z.append(Variable(torch.cuda.FloatTensor(input[0].size()).normal_(0, 1))) # , requires_grad=True
+            self.all_z.append(GPUVariable(torch.FloatTensor(input[0].size()).normal_(0, 1))) # , requires_grad=True
             torch.manual_seed(int(self.seeds[k]))
             mean_svi, logvar_svi = input
             z_samples = self.encoder._reparameterize(mean_svi, logvar_svi, self.all_z[k])
@@ -97,8 +97,6 @@ class OptimN2N:
             #all_grads_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
             loss.backward(retain_variables=True)
             all_grads_k = [i.grad for i in all_input_params]
-
-            import pdb; pdb.set_trace
 
             input_grad_k = all_grads_k[:len(input)]
             param_grads_k = all_grads_k[len(input):]

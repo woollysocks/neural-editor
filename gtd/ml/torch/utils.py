@@ -138,7 +138,8 @@ def try_gpu(x):
 
     if _GPUS_EXIST:
         try:
-            return x.cuda()
+            x = x.cuda()
+            return x
         except (AssertionError, RuntimeError):
             # actually, GPUs don't exist
             print 'No GPUs detected. Sticking with CPUs.'
