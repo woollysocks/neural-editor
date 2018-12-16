@@ -100,11 +100,11 @@ class OptimN2N:
 
             input_grad_k = all_grads_k[:len(input)]
             param_grads_k = all_grads_k[len(input):]
-          
+            
             if self.max_grad_norm > 0:        
                 self.clip_grad_norm([input_grad_k[0].data], self.max_grad_norm)
                 self.clip_grad_norm([input_grad_k[1].data], self.max_grad_norm)
-            #import pdb; pdb.set_trace()
+
 
             if self.acc_param_grads:
                 for i, p in enumerate(param_grads_k):
@@ -121,7 +121,7 @@ class OptimN2N:
             
             lr_k_list = [lr for lr in self.lr]
 
-            input = [Variable(x.data + lr_k * p[k]) for x, p, lr_k in zip(input, self.mom_params, lr_k_list)]
+            input = [Variable(x.data + lr_k * p[k], requires_grad=True) for x, p, lr_k in zip(input, self.mom_params, lr_k_list)]
             
             if verbose:
                 print('mom', k, loss.data[0])
