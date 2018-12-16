@@ -144,16 +144,23 @@ class OptimN2N:
                 x_k = self.input_cache[i][k]
                 x_k_rv = GPUVariable((x_k + r*v).type_as(x_k), requires_grad=True)
                 input_k_rv.append(x_k_rv)
+            """
             if self.acc_param_grads:
                 all_input_params = input_k_rv + self.params
             else:
                 all_input_params = input_k_rv
+            """
             torch.manual_seed(int(self.seeds[k]))
 
             mean, logvar = input_k_rv
             z_samples = self.encoder._reparameterize(mean, logvar, self.all_z[k])
             self.encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, z_samples)
             loss = self.decoder.loss(self.encoder_output, self.y)
+
+            if self.acc_param_grads:
+                all_input_params = input_k_rv + self.params
+            else:
+                all_input_params = input_k_rv
 
             #loss = self.loss_fn(input_k_rv, self.y, self.model, self.all_z[k])
             #all_grads_rv_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
