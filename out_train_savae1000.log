@@ -136,3 +136,59 @@ Traceback (most recent call last):
     raise TypeError('Cannot duplicate {}'.format(t))
 TypeError: Cannot duplicate <type 'tuple'>
 Exception RuntimeError: RuntimeError('cannot join current thread',) in <bound method tqdm.__del__ of Streaming training examples:   1%|          | 499/70312 [3:06:48<417:14:20, 21.52s/it]> ignored
+No handlers could be found for logger "pyhocon.config_parser"
+Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:   0%|          | 0/10000 [00:00<?, ?it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:   3%|2         | 297/10000 [00:00<00:03, 2964.78it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:   6%|5         | 598/10000 [00:00<00:03, 2975.78it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:   9%|9         | 906/10000 [00:00<00:03, 3004.86it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  12%|#2        | 1213/10000 [00:00<00:02, 3023.39it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  15%|#5        | 1510/10000 [00:00<00:02, 3005.56it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  18%|#8        | 1818/10000 [00:00<00:02, 3027.20it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  21%|##1       | 2126/10000 [00:00<00:02, 3042.33it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  24%|##4       | 2425/10000 [00:00<00:02, 3025.77it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  27%|##7       | 2733/10000 [00:00<00:02, 3039.81it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  30%|###       | 3041/10000 [00:01<00:02, 3049.22it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  33%|###3      | 3338/10000 [00:01<00:02, 3023.45it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  36%|###6      | 3646/10000 [00:01<00:02, 3038.93it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  40%|###9      | 3955/10000 [00:01<00:01, 3052.05it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  43%|####2     | 4264/10000 [00:01<00:01, 3060.07it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  46%|####5     | 4573/10000 [00:01<00:01, 3067.27it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  49%|####8     | 4882/10000 [00:01<00:01, 3071.79it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  52%|#####1    | 5190/10000 [00:01<00:01, 3072.07it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  55%|#####4    | 5498/10000 [00:01<00:01, 3072.06it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  58%|#####8    | 5806/10000 [00:01<00:01, 3073.50it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  61%|######1   | 6114/10000 [00:02<00:01, 3073.10it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  64%|######4   | 6422/10000 [00:02<00:01, 3071.29it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  67%|######7   | 6729/10000 [00:02<00:01, 3036.09it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  70%|#######   | 7036/10000 [00:02<00:00, 3045.90it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  73%|#######3  | 7343/10000 [00:02<00:00, 3051.61it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  76%|#######6  | 7649/10000 [00:02<00:00, 3050.69it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  80%|#######9  | 7956/10000 [00:02<00:00, 3054.65it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  83%|########2 | 8263/10000 [00:02<00:00, 3057.19it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  86%|########5 | 8569/10000 [00:02<00:00, 3038.16it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  89%|########8 | 8873/10000 [00:02<00:00, 3032.76it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  92%|#########1| 9178/10000 [00:03<00:00, 3035.95it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  95%|#########4| 9483/10000 [00:03<00:00, 3038.72it/s]Loading embeddings from /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/word_vectors/glove.6B.300d_yelp.txt:  98%|#########7| 9791/10000 [00:03<00:00, 3048.90it/s]
+Reading data file.:   0%|          | 0/300 [00:00<?, ?it/s]Reading data file.: 100%|##########| 300/300 [00:00<00:00, 15017.92it/s]
+Reading data file.:   0%|          | 0/50 [00:00<?, ?it/s]Reading data file.: 100%|##########| 50/50 [00:00<00:00, 14028.71it/s]
+Reading data file.:   0%|          | 0/50 [00:00<?, ?it/s]Reading data file.: 100%|##########| 50/50 [00:00<00:00, 15165.98it/s]
+TrainingRun configuration:
+optim {
+  seed = 0
+  learning_rate = 0.001
+  batch_size = 64
+  max_iters = 400000
+}
+eval {
+  num_examples = 32
+  big_num_examples = 512
+  eval_steps = 500
+  big_eval_steps = 5000
+  save_steps = 5000
+  alive_steps = 30
+}
+seed = 1000
+editor {
+  decoder_cell = "AttentionDecoderCell"
+  vocab_size = 10000
+  word_dim = 300
+  hidden_dim = 256
+  agenda_dim = 256
+  edit_dim = 128
+  attention_dim = 128
+  encoder_layers = 3
+  decoder_layers = 3
+  no_insert_delete_attn = false
+  edit_dropout = true
+  ident_pr = 0.1
+  attend_pr = 0.0
+  enable_vae = true
+  lamb_reg = 100.0
+  norm_eps = 0.1
+  norm_max = 14.0
+  kill_edit = false
+  embed_sentence = false
+  wvec_path = "glove.6B.300d_yelp.txt"
+}
+dataset {
+  path = "yelp_dataset_large_split"
+  use_diff = true
+}
+No checkpoint to reload. Initializing fresh.
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/train.tsv
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/valid.tsv
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/test.tsv
+uncomitted changes being stored as patches
+New TrainingRun created at: /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/edit_runs/91
+Optimized batches: reduced cost from 6976 (naive) to 4352 (0.376146788991% reduction).
+Optimal (batch_size=1) would be 3290.
+Streaming training examples:   0%|          | 0/5 [00:00<?, ?it/s]

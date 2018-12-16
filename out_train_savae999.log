@@ -3,3 +3,54 @@ No handlers could be found for logger "pyhocon.config_parser"
 Reading data file.:   0%|          | 0/300 [00:00<?, ?it/s]Reading data file.: 100%|##########| 300/300 [00:00<00:00, 8949.89it/s]
 Reading data file.:   0%|          | 0/50 [00:00<?, ?it/s]Reading data file.: 100%|##########| 50/50 [00:00<00:00, 6802.75it/s]
 Reading data file.:   0%|          | 0/50 [00:00<?, ?it/s]Reading data file.: 100%|##########| 50/50 [00:00<00:00, 12664.73it/s]
+TrainingRun configuration:
+optim {
+  seed = 0
+  learning_rate = 0.001
+  batch_size = 64
+  max_iters = 400000
+}
+eval {
+  num_examples = 32
+  big_num_examples = 512
+  eval_steps = 500
+  big_eval_steps = 5000
+  save_steps = 5000
+  alive_steps = 30
+}
+seed = 999
+editor {
+  decoder_cell = "AttentionDecoderCell"
+  vocab_size = 10000
+  word_dim = 300
+  hidden_dim = 256
+  agenda_dim = 256
+  edit_dim = 128
+  attention_dim = 128
+  encoder_layers = 3
+  decoder_layers = 3
+  no_insert_delete_attn = false
+  edit_dropout = true
+  ident_pr = 0.1
+  attend_pr = 0.0
+  enable_vae = true
+  lamb_reg = 100.0
+  norm_eps = 0.1
+  norm_max = 14.0
+  kill_edit = false
+  embed_sentence = false
+  wvec_path = "glove.6B.300d_yelp.txt"
+}
+dataset {
+  path = "yelp_dataset_large_split"
+  use_diff = true
+}
+No checkpoint to reload. Initializing fresh.
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/train.tsv
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/valid.tsv
+[localhost] local: wc -l /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/yelp_dataset_large_split/test.tsv
+uncomitted changes being stored as patches
+New TrainingRun created at: /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/edit_runs/90
+Optimized batches: reduced cost from 6976 (naive) to 4352 (0.376146788991% reduction).
+Optimal (batch_size=1) would be 3290.
+Streaming training examples:   0%|          | 0/5 [00:00<?, ?it/s]Streaming training examples:  20%|##        | 1/5 [00:19<01:18, 19.72s/it]Streaming training examples:  40%|####      | 2/5 [00:36<00:56, 18.95s/it]

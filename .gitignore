@@ -1,3 +1,6 @@
+*.err
+*.out
+*.log
 *.pyc
 .idea
 neural-editor-data/
