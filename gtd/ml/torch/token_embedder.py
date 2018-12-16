@@ -60,7 +60,10 @@ class TokenEmbedder(Module):
         Returns:
             SequenceBatch
         """
-        return SequenceBatch(self._embedding(seq_batch.values.cuda()), seq_batch.mask)
+        if torch.cuda.is_available():
+            return SequenceBatch(self._embedding(seq_batch.values.cuda()), seq_batch.mask)
+        else:
+            return SequenceBatch(self._embedding(seq_batch.values), seq_batch.mask)
 
     def embed_tokens(self, tokens):
         """Embed list of tokens.
