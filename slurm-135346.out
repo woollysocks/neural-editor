@@ -1,2 +1,0 @@
-/var/lib/slurm/slurmd/job135346/slurm_script: line 22: 17619 Killed                  PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt >> out_train_cpu.log 2>&1
-slurmstepd: error: Detected 1 oom-kill event(s) in step 135346.batch cgroup.

@@ -53,4 +53,4 @@ uncomitted changes being stored as patches
 New TrainingRun created at: /misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data/edit_runs/90
 Optimized batches: reduced cost from 6976 (naive) to 4352 (0.376146788991% reduction).
 Optimal (batch_size=1) would be 3290.
-Streaming training examples:   0%|          | 0/5 [00:00<?, ?it/s]Streaming training examples:  20%|##        | 1/5 [00:19<01:18, 19.72s/it]Streaming training examples:  40%|####      | 2/5 [00:36<00:56, 18.95s/it]
+Streaming training examples:   0%|          | 0/5 [00:00<?, ?it/s]Streaming training examples:  20%|##        | 1/5 [00:19<01:18, 19.72s/it]Streaming training examples:  40%|####      | 2/5 [00:36<00:56, 18.95s/it]Streaming training examples:  60%|######    | 3/5 [00:57<00:39, 19.56s/it]
