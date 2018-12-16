@@ -142,7 +142,7 @@ class OptimN2N:
             for i in range(len(p_kp1_grad)):
                 v = p_kp1_grad[i]
                 x_k = self.input_cache[i][k]
-                x_k_rv = GPUVariable((x_k + r*v).type_as(x_k), requires_grad=True)
+                x_k_rv = Variable((x_k + r*v).type_as(x_k), requires_grad=True)
                 input_k_rv.append(x_k_rv)
             """
             if self.acc_param_grads:
@@ -161,7 +161,6 @@ class OptimN2N:
                 all_input_params = input_k_rv + self.params
             else:
                 all_input_params = input_k_rv
-
             #loss = self.loss_fn(input_k_rv, self.y, self.model, self.all_z[k])
             #all_grads_rv_k = torch.autograd.grad(loss, all_input_params, retain_graph=True)
 
