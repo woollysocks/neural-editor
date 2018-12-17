@@ -36,6 +36,8 @@ class EditTrainingRuns(TrainingRuns):
     def __init__(self, check_commit=True):
         data_dir = data.workspace.edit_runs
         src_dir = dirname(dirname(dirname(realpath(__file__))))  # root of the Git repo
+        print("data_dir: ", data_dir)
+        print("src_dir: ", src_dir)
         super(EditTrainingRuns, self).__init__(data_dir, src_dir, EditTrainingRun, check_commit=check_commit)
 
     @classmethod
@@ -57,7 +59,6 @@ class EditTrainingRuns(TrainingRuns):
         # dataset
         config = Config.from_file(workspace.config)
         dataset = config.dataset.path
-
         return '{name:10} -- steps: {steps:<10}, loss: {loss:.2f}, dset: {dset:15}, bleu: {bleu:.2f} ' \
                'dirty_repo: {dirty_repo}'.format(
                 name=name, dset=dataset, steps=steps, loss=loss, bleu=bleu, dirty_repo=dirty_repo)
@@ -245,7 +246,6 @@ class TrainState(object):
 class EditTrainingRun(TorchTrainingRun):
     def __init__(self, config, save_dir):
         super(EditTrainingRun, self).__init__(config, save_dir)
-
         # extra dir for storing TrainStates where NaN was encountered
         self.workspace.add_dir('nan_checkpoints', 'nan_checkpoints')
 
@@ -264,6 +264,7 @@ class EditTrainingRun(TorchTrainingRun):
         self._examples = EditDataSplits(data_dir, config.dataset.use_diff)
 
     def train(self):
+       
         self._train(self.config, self._train_state, self._examples, self.workspace, self.metadata, self.tb_logger)
 
     def reload(self, train_steps):
@@ -285,7 +286,7 @@ class EditTrainingRun(TorchTrainingRun):
         return self._examples
 
     @classmethod
-    def _build_editor(cls, config):
+    def _build_editor(cls, config, num_iter, eps, momentum):
         """Build Editor.
 
         Args:
@@ -311,9 +312,7 @@ class EditTrainingRun(TorchTrainingRun):
                                                 num_layers=config.decoder_layers)
         else:
             raise ValueError('{} not implemented'.format(config.decoder_cell))
-
-        editor = Editor(source_token_embedder, config.hidden_dim, config.agenda_dim, config.edit_dim, config.lamb_reg, config.norm_eps, config.norm_max, config.kill_edit, decoder_cell, config.encoder_layers)
-
+        editor = Editor(source_token_embedder, config.hidden_dim, config.agenda_dim, config.edit_dim, config.lamb_reg, config.norm_eps, config.norm_max, config.kill_edit, decoder_cell, config.encoder_layers, num_iter, eps, momentum)
         editor = try_gpu(editor)
         return editor
 
@@ -321,7 +320,7 @@ class EditTrainingRun(TorchTrainingRun):
     def _initialize_train_state(cls, config):
         """Set up all the state necessary to begin training."""
         with random_seed(config.seed):
-            editor = cls._build_editor(config.editor)
+            editor = cls._build_editor(config.editor, config.num_iter, config.eps, config.momentum)
             optimizer = optim.Adam(editor.parameters(), lr=config.optim.learning_rate)
             train_steps = 0
             max_grad_norm = 0
