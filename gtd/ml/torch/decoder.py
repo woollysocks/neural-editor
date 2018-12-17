@@ -549,7 +549,7 @@ class BeamDecoder(LeftRightDecoder):
         duplicate = BeamDuplicator(beam_size)
         rnn_state = duplicate(rnn_state_orig)
         # BUG HERE
-        encoder_output = EncoderOutput(encoder_output.source_embeds, encoder_output.insert_embeds, encoder_output.delete_embeds, encoder_output.agenda[0])
+        #encoder_output = EncoderOutput(encoder_output.source_embeds, encoder_output.insert_embeds, encoder_output.delete_embeds, encoder_output.agenda[0])
         encoder_output = duplicate(encoder_output)
 
         states = []
@@ -572,8 +572,7 @@ class BeamDecoder(LeftRightDecoder):
         for _ in time_steps:
             # stop if all sequences have terminated
             if all(state.terminated for state in states): break
-            rnn_state, states = self._advance(encoder_output, weighted_value_estimators, beam_size, rnn_state, states,
-                                              sibling_penalty)
+            rnn_state, states = self._advance(encoder_output, weighted_value_estimators, beam_size, rnn_state, states, sibling_penalty)
             states_over_time.append(states)
 
         return self._recover_sequences(states_over_time, beam_size, top_k)
@@ -689,7 +688,7 @@ class BeamDecoder(LeftRightDecoder):
             c (Variable): (batch_size, hidden_dim)
             states (list[DecoderState])
         """
-        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner,encoder_output, rnn_state, states)
+        rnn_state, predictions = self._advance_rnn(self.token_embedder, self.decoder_cell, self.rnn_context_combiner, encoder_output, rnn_state, states)
         token_probs, vocab = predictions
 
         sequence_probs = np.expand_dims(np.array([s.sequence_prob for s in states]), 1)  # (batch_size, 1)

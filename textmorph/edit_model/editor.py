@@ -120,30 +120,6 @@ class Editor(Module):
         # verbose set to False above
         var_param_grads = torch.cat(var_param_grads, 1)
         var_params.backward(var_param_grads, retain_variables=True)
-        # add shit
-        """
-            PLAN!!
-
-            TODO: define meta_optimizer?
-
-            1. need "mean" and "logvar" from self.encoder
-                a. mean and logvar are linear transformations of encoder output
-                b. mean is "lambda" in SA-VAE paper. logvar is "v".
-                c. lambda in neural-ediotor is tuple of outputs: (source_embeds, insert_noisy_exact, delete_noisy_exact, agenda). How do we define lambda?
-                    i. source_embeds is sents in SA-VAE (I think)
-                    ii. agenda is part of lambda/mean.
-                    iii. X insert_noisy_exact?
-                    iv. X delete_noisy_exact?
-                    v. DONE "lambda = agenda" [simple decoder cell only looks at agenda. not noisy stuff. if true, let "lambda = agenda".]
-            2. do all the transformations and stuff and pass through meta_optimizer.forward to get var_loss
-                a. Do versions with and without reparametrization
-            3. pass inputs through meta.backwards to get var.params
-            4. do .backward() with both losses
-            5. do single optimizer.step()
-
-            decisions to make:
-                1. do we reparameterize lambda/agenda/edit_embed?
-        """
 
         #return total_loss
         return var_loss, var_params, var_param_grads
@@ -222,11 +198,25 @@ class Editor(Module):
         return beam_list, edit_traces
 
     def _edit_batch(self, examples, max_seq_length, beam_size):
-        source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, _, edit_embed = self._batch_editor_examples(
-            examples)
-        encoder_input = self.encoder.preprocess(source_words, insert_words, insert_exact_words, delete_words,
-                                                delete_exact_words, edit_embed)
-        encoder_output = self.encoder(encoder_input)
+        #source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, target_words, edit_embed = self._batch_editor_examples(examples)
+        #encoder_input = self.encoder.preprocess(source_words, insert_words, insert_exact_words, delete_words, delete_exact_words, edit_embed)
+
+        #############
+        # New inference during eval,
+        editor_input = self.preprocess(examples)
+        self.encoder_output = self.encoder(editor_input.encoder_input)
+        mean, logvar = self.encoder_output.agenda
+        var_params = torch.cat([mean, logvar], 1) 
+        mean_svi = Variable(self.encoder_output.agenda[0].data, requires_grad=True)
+        logvar_svi = Variable(self.encoder_output.agenda[1].data, requires_grad=True)
+        var_params_svi = self.meta_optimizer.forward([mean_svi, logvar_svi], self.encoder_output, editor_input.train_decoder_input)
+
+        self.mean_svi_final, self.logvar_svi_final = var_params_svi
+        self.z_samples = self.encoder._reparameterize(self.mean_svi_final, self.logvar_svi_final)
+        #self.encoder_output.agenda = self.z_samples
+        encoder_output = EncoderOutput(self.encoder_output.source_embeds, self.encoder_output.insert_embeds, self.encoder_output.delete_embeds, self.z_samples)
+        #############
+        #encoder_output = self.encoder(encoder_input)
         beams, decoder_traces = self.test_decoder_beam.decode(examples, 
             encoder_output, 
             weighted_value_estimators=[], 

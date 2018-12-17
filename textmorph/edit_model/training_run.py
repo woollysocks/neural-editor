@@ -511,14 +511,12 @@ class EditTrainingRun(TorchTrainingRun):
             if not big_eval:
                 for tr in edit_traces:
                     print tr
-
         print '===== STEP {} ====='.format(train_steps)
         evaluate_on_examples('train', examples.train)
         evaluate_on_examples('valid', examples.valid)
 
     @classmethod
-    def _compute_metrics(cls, editor, examples, num_evaluate_examples, noiser,
-                         batch_size=256, edit_dropout=False, draw_samples=False):
+    def _compute_metrics(cls, editor, examples, num_evaluate_examples, noiser, batch_size=256, edit_dropout=False, draw_samples=False):
         with random_seed(0):
             sample = sample_if_large(examples, num_evaluate_examples, replace=False)
         if edit_dropout:

@@ -40,9 +40,10 @@ class OptimN2N:
             self.params = model_update_params
             self.param_grads = [torch.zeros([self.iters] + list(p.size())).type_as(p.data) for p in self.params]
 
-    def forward(self, input, y, verbose=False):
+    def forward(self, input, encoder_output, y, verbose=False):
+        # ADD IN encoder_output
         self.seeds = np.random.randint(3435, size=self.iters)
-        return self.forward_mom(input, y, verbose)
+        return self.forward_mom(input, encoder_output, y, verbose)
 
     def backward(self, grad_output, verbose=False):
         grads = self.backward_mom(grad_output, verbose)
