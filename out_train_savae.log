@@ -1,2 +1,0 @@
-usage: main.py [-h] [-c CHECK_COMMIT] [-p] exp_id [exp_id ...] seed
-main.py: error: too few arguments
