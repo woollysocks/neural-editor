@@ -123,6 +123,7 @@ class TrainingRuns(Mapping):
         self._src_dir = src_dir
         self._run_factory = run_factory
         self._check_commit = check_commit
+ 
 
     def _config_path(self, save_dir):
         return join(save_dir, 'config.txt')

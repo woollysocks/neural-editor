@@ -24,7 +24,7 @@ class Editor(Module):
         train_decoder (TrainDecoder)
     """
 
-    def __init__(self, token_embedder, hidden_dim, agenda_dim, edit_dim, lamb_reg, norm_eps, norm_max, kill_edit, decoder_cell, encoder_layers):
+    def __init__(self, token_embedder, hidden_dim, agenda_dim, edit_dim, lamb_reg, norm_eps, norm_max, kill_edit, decoder_cell, encoder_layers, num_iter=None, eps=None, momentum=None):
         """Construct Editor.
 
         Args:
@@ -44,7 +44,10 @@ class Editor(Module):
         update_params = list(self.train_decoder.parameters())
         self.meta_optimizer = OptimN2N(self.encoder, 
                             self.train_decoder, 
-                            update_params)
+                            update_params, 
+			    iters=num_iter,
+                            eps=eps,
+                            momentum=momentum)
         # meta_optimizer has default settings
         # Todo: add hypereparamters to tune!!!
 

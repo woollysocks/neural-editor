@@ -935,10 +935,11 @@ class Config(object):
             f.write(self.to_str())
 
     @classmethod
-    def from_file(cls, path, soup=None):
+    def from_file(cls, path, soup=None, savae_config=(10, 0.0002, 0.3)):
         config_tree = ConfigFactory.parse_file(path)
         if soup:
             config_tree['seed'] = soup
+        config_tree['num_iter'], config_tree['eps'], config_tree['momentum'] = savae_config
         return cls(config_tree)
 
     @classmethod
