@@ -24,7 +24,7 @@ from encoder import EncoderOutput
 
 
 class OptimN2N:
-    def __init__(self, encoder, decoder, model_update_params, lr=[1,1],iters=20, acc_param_grads=True, max_grad_norm = 5, eps = 0.00001, momentum=0.5):
+    def __init__(self, encoder, decoder, model_update_params, lr=[1,1], iters=20, acc_param_grads=True, max_grad_norm=5, eps = 0.00001, momentum=0.5):
 
         #eps = 0.00001
         self.iters = iters

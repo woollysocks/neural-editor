@@ -2,11 +2,11 @@
 # Need python=2.7
 
 pytorch==0.1.12
-pyhocon
-tensorboard_logger
-tqdm
-gitpython
-nltk==3.2.4
+pip install --user pyhocon
+pip install --user tensorboard_logger
+pip install --user tqdm
+pip install --user gitpython
+pip install --user nltk==3.2.4
 pip install --user line_profiler==1.0
 pip install --user matplotlib==1.4.3
 pip install --user numpy==1.11.0
@@ -14,7 +14,7 @@ pip install --user psycopg2==2.6.1
 pip install --user pytest==2.9.2
 # pip install --user spacy==1.1.0 ??
 pip install --user SQLAlchemy==1.1.0b3
-pip install --user ipython==5.1.0 m   #5.4.1 ?
+pip install --user ipython==5.1.0
 pip install --user scipy==0.18.0 1.1.0
 pip install --user faulthandler==2.4
 pip install --user futures==3.0.5
@@ -27,5 +27,9 @@ pip install --user fabric==1.12.0
 
 # CASSIO
 # export TEXTMORPH_DATA=/misc/vlgscratch4/BowmanGroup/nikita/neural-editor-data
+
+# PRINCE
+# export TEXTMORPH_DATA=/scratch/nn1119/neural-editor-data
+# source ~/pytorch_neural/py2.7.12/bin/activate
 
 # PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt 5
