@@ -1,0 +1,133 @@
+\documentclass[24pt, a0paper, landscape]{tikzposter}
+\usepackage[utf8]{inputenc}
+\usepackage{blindtext}
+\usepackage{comment}
+ 
+\title{Neural Editor with Semi-Amortized Inference}
+\author{Phu Mon-htut and Nikita Nangia}
+\date{\today}
+\institute{Center for Data Science, NYU}
+ 
+%\usetheme{Simple}
+%\usecolorpalette{PurpleGrayBlue}
+\usecolorstyle[colorPalette=Default,colorOne=white,colorTwo=teal,colorThree=orange]{Australia}
+ 
+\begin{document}
+ 
+\maketitle
+
+\hspace{5cm} 
+\begin{columns}
+\column{0.927}
+    \block{Introduction}
+        {
+            \huge Bullet points\\
+            \normalsize
+            \blindtext
+        }
+\end{columns}
+
+
+\begin{columns}	  
+
+\column{0.33}
+	\block{Neural Editor}
+    {
+        \huge Describe model briefly. Picture?. \\
+        \normalsize
+        \blindtext
+    }
+	    
+    \block[bodyoffsety=-1cm,titleoffsety=-1cm]{Semi-Amortized Inference}
+    {
+        \huge Describe algorithm. Picture? Mention benefits (the why). \\ 
+        \normalsize
+        \blindtext
+    }
+
+\hspace{3cm}
+\column{0.57}
+	\block{Random Walk}
+    {
+        \huge BLEU score? Example random walk\\
+        \normalsize
+        \blindtext
+        
+    }
+    
+    \colorlet{blocktitlebgcolor}{darkgray}
+    \block[bodyoffsety=-1cm,titleoffsety=-1cm]{Plots}
+    {
+        \huge Example traces through latent space\\
+        \normalsize
+        \blindtext
+        
+    }
+        
+	\colorlet{blocktitlebgcolor}{teal}
+	\block[bodyoffsety=-1cm,titleoffsety=-1cm]{Traces}
+    {
+        \huge Example traces through latent space\\
+        \normalsize
+        \blindtext
+        
+    }\note[
+        targetoffsetx=20cm, 
+        targetoffsety=-9.5cm, 
+        width=0.3\linewidth
+        ]{\huge Conclusion \normalsize \blindtext}
+        
+
+
+\end{columns}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\iffalse
+\block{~}
+{
+    \blindtext
+}
+ 
+\begin{columns}
+    \column{0.4}
+    \colorlet{blocktitlebgcolor}{darkgray}
+    \block{More text}{Text and more text}
+ 
+    \column{0.6}
+    \block{Something else}{Here, \blindtext \vspace{4cm}}
+    \note[
+        targetoffsetx=-9cm, 
+        targetoffsety=-6.5cm, 
+        width=0.5\linewidth
+        ]
+        {e-mail \texttt{sharelatex@sharelatex.com}}
+\end{columns}
+ 
+\begin{columns}
+    \block{A figure}
+    %{
+    %    \begin{tikzfigure}
+    %        \includegraphics[width=0.4\textwidth]{images/lion-logo.png}
+    %    \end{tikzfigure}
+    %}
+    %\column{0.5}
+    \block{Description of the figure}{\blindtext}
+\end{columns}
+\fi
+
+\end{document}
