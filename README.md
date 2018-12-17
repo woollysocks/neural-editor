@@ -5,7 +5,7 @@ This codebase is forked from the source code for "[Generating Sentences by Editi
 This project takes the Neural Editor and trains it using semi-amortized inference as described in [Semi-Amortized Variational Autoencoders](https://arxiv.org/abs/1802.02550) by Kim et al. (2018).
 
 
-A detailed README for the original codebase can be found [here](https://github.com/kelvinguu/neural-editor/tree/readme). Not that this forked repo does not require using docker. 
+A detailed README for the original codebase can be found [here](https://github.com/kelvinguu/neural-editor/tree/readme). Note that this forked repo does not require using docker. 
 
 The requirements needed for this code are listed in requirements.txt. Please note that this code is written in python v2.7 using pytorch v.0.1.12 (installation instructions are [here](https://pytorch.org/get-started/previous-versions/)).
 
@@ -39,8 +39,9 @@ tar xvf yelp_dataset_large_split.tar.gz -C yelp_dataset_large_split
 export TEXTMORPH_DATA=$DATA_DIR
 ```
 
-
 To train the model, run the following command,
 ```
 $ python textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt
 ```
+
+or use `sb_train.sbatch`.
