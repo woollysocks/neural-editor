@@ -15,9 +15,15 @@
 #module load cuda/8.0.44
 #module load cudnn/8.0v5.1
 
-SEED=$1 
-source venv_editor/bin/activate
+SEED=$1
+numiter=$2
+eps=$3
+momentum=$4
 
-export TEXTMORPH_DATA=/misc/vlgscratch4/BowmanGroup/pmh330/neural-editor/neural-editor-data
-PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt $SEED >> out_half_train_savae$SEED.log 2>&1
+source /home/pmh330/pytorch-editor/py2.7/bin/activate
+export TEXTMORPH_DATA=/home/pmh330/neural-editor/neural-editor-data
 
+if [ $# -ge 2 ]; then
+   PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt $SEED >> out_train_savae$SEED.log 2>&1
+else
+   PYTHONPATH=. python2 textmorph/edit_model/main.py configs/edit_model/edit_baseline.txt $SEED --num-iter $numiter --eps $eps --momentum $momentum >> out_train_savae$SEED.log 2>&1
